@@ -1,0 +1,55 @@
+networks:
+  ghosts-network:
+    driver: bridge
+
+services:
+  ghosts-ui:
+    image: nishant159/ghosts-ui:v8.3.1-fixed
+    container_name: ghosts-ui
+    ports:
+      - "8080:8080"
+    networks:
+      - ghosts-network
+
+  ghosts-postgres:
+    image: postgres:16.8
+    container_name: ghosts-postgres
+    environment:
+      POSTGRES_DB: ghosts
+      POSTGRES_USER: ghosts
+      POSTGRES_PASSWORD: scotty@1
+    volumes:
+      - ./_db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ghosts"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ghosts-network
+    restart: always
+
+  ghosts-api:
+    image: nishant159/ghosts-api:v8.3.1
+    container_name: ghosts-api
+    depends_on:
+      ghosts-postgres:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - ghosts-network
+    restart: always
+
+  ghosts-grafana:
+    image: grafana/grafana
+    container_name: ghosts-grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - ghosts-network
+    restart: always
+    volumes:
+      - ./_g:/var/lib/grafana

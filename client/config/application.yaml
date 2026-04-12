@@ -1,0 +1,7 @@
+ApiRootUrl: "http://10.0.4.2:5000/api"
+ClientUpdates:
+  CycleSleep: 30000
+  IsEnabled: true
+ClientResults:
+  IsEnabled: true
+  CycleSleep: 30000
