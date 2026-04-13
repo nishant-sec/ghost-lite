@@ -3,5 +3,10 @@ ClientUpdates:
   CycleSleep: 30000
   IsEnabled: true
 ClientResults:
-  IsEnabled: true
+  IsEnabled: false
   CycleSleep: 30000
+Id:
+  IsEnabled: true
+  Format: "id"
+  FormatValue: "MACHINE-UUID-HERE"
+EncodeHeaders: false
