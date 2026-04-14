@@ -1,0 +1,24 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 5000
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["Ghosts.Api/ghosts.api.csproj", "Ghosts.Api/"]
+COPY ["Ghosts.Domain/ghosts.domain.csproj", "Ghosts.Domain/"]
+COPY ["Ghosts.Animator/ghosts.animator.csproj", "Ghosts.Animator/"]
+RUN dotnet restore "Ghosts.Api/ghosts.api.csproj"
+COPY . .
+WORKDIR "/src/Ghosts.Api"
+RUN dotnet build "ghosts.api.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "ghosts.api.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+COPY ["Ghosts.Api/appsettings.json", "./"]
+COPY ["Ghosts.Api/nlog.config", "./"]
+ENV ASPNETCORE_URLS=http://+:5000
+ENTRYPOINT ["dotnet", "ghosts.api.dll"]
